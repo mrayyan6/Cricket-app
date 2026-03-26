@@ -5,6 +5,50 @@ const MAX_OVERS = 2;
 const MAX_BALLS = MAX_OVERS * 6;
 const MAX_WICKETS = 2;
 
+// Commentary system
+const COMMENTARY = {
+  'Wicket': [
+    "And that's the wicket! Great delivery!",
+    "Bowled! The batsman is out!",
+    "Caught behind the stumps! What a moment!",
+  ],
+  '0': [
+    "Dot ball! No runs scored.",
+    "Blocked safely for a dot.",
+    "Not a single run off that delivery.",
+  ],
+  '1': [
+    "One run! Good quick single.",
+    "Just a single taken.",
+    "Running between the wickets for one.",
+  ],
+  '2': [
+    "Two runs! Great shot placement.",
+    "That's a comfortable two runs.",
+    "Brilliant running, a pair of twos!",
+  ],
+  '3': [
+    "Three runs! Oh what a stroke!",
+    "Beautiful three-run boundary.",
+    "Down to fine leg for three!",
+  ],
+  '4': [
+    "FOUR! Brilliant boundary shot!",
+    "That's racing to the boundary for four!",
+    "Cracking four! The crowd goes wild!",
+  ],
+  '6': [
+    "SIX! What a massive hit!",
+    "Over the boundary for six runs!",
+    "That's disappeared into the crowd!",
+  ],
+};
+
+function getRandomCommentary(outcome) {
+  const commentaries = COMMENTARY[outcome] || ['Interesting ball!'];
+  return commentaries[Math.floor(Math.random() * commentaries.length)];
+}
+
 const PROBABILITIES = {
   Aggressive: [
     { outcome: 'Wicket', shortLabel: 'W', prob: 0.40, colorClass: 'seg--wicket' },
@@ -204,6 +248,7 @@ export default function App() {
   const [shotCooldown, setShotCooldown] = useState(0);
   const [isBowling, setIsBowling] = useState(false);
   const [isBatting, setIsBatting] = useState(false);
+  const [commentary, setCommentary] = useState('');
   const shotResolverRef = useRef(null);
 
   const isGameOver = ballsBowled >= MAX_BALLS || wickets >= MAX_WICKETS;
@@ -243,6 +288,7 @@ export default function App() {
     const { outcome, sliderPosition } = shotResolverRef.current();
     setLastOutcome(outcome);
     setLastSliderPosition(sliderPosition);
+    setCommentary(getRandomCommentary(outcome));
 
     if (outcome === 'Wicket') {
       setWickets((prev) => prev + 1);
@@ -268,6 +314,15 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* Sticky Note */}
+      <div className="sticky-note">
+        <div className="sticky-note__content">
+          <p className="sticky-note__item"><strong>Name:</strong> Rayyan</p>
+          <p className="sticky-note__item"><strong>Roll:</strong> i23-0502</p>
+          <p className="sticky-note__item"><strong>Section:</strong> C</p>
+        </div>
+      </div>
+
       <div className="app__header">
         <button
           id="btn-reset-innings"
@@ -281,7 +336,15 @@ export default function App() {
 
       <div className="game-container">
         <Scoreboard runs={runs} wickets={wickets} ballsBowled={ballsBowled} />
-        <CricketField isPlaying={isBowling} isBatting={isBatting} />
+        <div className="pitch-container">
+          {commentary && (
+            <div className="commentary-box">
+              <span className="commentary-box__icon">📣</span>
+              <span className="commentary-box__text">{commentary}</span>
+            </div>
+          )}
+          <CricketField isPlaying={isBowling} isBatting={isBatting} />
+        </div>
       </div>
 
       <div className="controls-panel">

@@ -538,3 +538,229 @@ body {
   align-items: center;
   gap: 16px;
 }
+
+/* ======================================================
+   STICKY NOTE (Student Info)
+   ====================================================== */
+.sticky-note {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 200px;
+  background: linear-gradient(135deg, #fffacd, #fff8dc);
+  border: 2px solid #f0e68c;
+  border-radius: 4px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), -2px 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  font-family: 'Segoe Print', 'Comic Sans MS', cursive;
+  transform: rotate(-2deg);
+}
+
+.sticky-note__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sticky-note__item {
+  font-size: 0.75rem;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.sticky-note__item strong {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+/* ======================================================
+   COMMENTARY BOX
+   ====================================================== */
+.pitch-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+.commentary-box {
+  background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(63, 185, 80, 0.1));
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.commentary-box__icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.commentary-box__text {
+  font-size: 0.9rem;
+  color: #e6edf3;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ======================================================
+   RESPONSIVE DESIGN
+   ====================================================== */
+@media (max-width: 1000px) {
+  .app {
+    max-width: 95%;
+    gap: 20px;
+  }
+
+  .app__heading {
+    font-size: 1.6rem;
+  }
+
+  .game-container {
+    gap: 16px;
+  }
+
+  .sticky-note {
+    width: 180px;
+    padding: 10px;
+  }
+
+  .sticky-note__item {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 24px 12px;
+  }
+
+  .app {
+    gap: 16px;
+  }
+
+  .app__heading {
+    font-size: 1.4rem;
+  }
+
+  .game-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .scoreboard {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .pitch-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .cricket-field {
+    transform: scale(0.9);
+    margin: 0 auto;
+  }
+
+  .powerbar-wrapper {
+    max-width: 100%;
+  }
+
+  .sticky-note {
+    top: 12px;
+    right: 12px;
+    width: 160px;
+    padding: 8px;
+    border-radius: 3px;
+  }
+
+  .sticky-note__item {
+    font-size: 0.65rem;
+  }
+
+  .commentary-box {
+    padding: 10px 12px;
+    min-height: 40px;
+  }
+
+  .commentary-box__icon {
+    font-size: 1rem;
+  }
+
+  .commentary-box__text {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 16px 8px;
+  }
+
+  .app {
+    gap: 12px;
+  }
+
+  .app__heading {
+    font-size: 1.2rem;
+  }
+
+  .scoreboard {
+    max-width: 100%;
+  }
+
+  .scoreboard__stat-value {
+    font-size: 2rem;
+  }
+
+  .cricket-field {
+    transform: scale(0.8);
+  }
+
+  .powerbar-wrapper {
+    padding: 16px;
+    max-width: 100%;
+  }
+
+  .sticky-note {
+    width: 140px;
+    padding: 6px;
+    font-size: 0.6rem;
+  }
+
+  .sticky-note__item {
+    font-size: 0.6rem;
+  }
+
+  .controls-panel {
+    gap: 12px;
+  }
+
+  .btn {
+    font-size: 0.85rem;
+    padding: 10px 16px;
+  }
+}
