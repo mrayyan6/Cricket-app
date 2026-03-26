@@ -105,7 +105,7 @@ function PowerBar({ battingStyle, registerShotResolver }) {
   }, [registerShotResolver, segments]);
 
   useEffect(() => {
-    const SPEED = 0.32; 
+    const SPEED = 1;
 
     function tick() {
       posRef.current += SPEED * dirRef.current;
@@ -166,6 +166,7 @@ export default function App() {
   const [battingStyle, setBattingStyle] = useState('Aggressive');
   const [lastOutcome, setLastOutcome] = useState('None');
   const [lastSliderPosition, setLastSliderPosition] = useState(null);
+  const [shotCooldown, setShotCooldown] = useState(0);
   const shotResolverRef = useRef(null);
 
   const isGameOver = ballsBowled >= MAX_BALLS || wickets >= MAX_WICKETS;
@@ -174,8 +175,26 @@ export default function App() {
     shotResolverRef.current = resolverFn;
   }
 
+  useEffect(() => {
+    if (shotCooldown <= 0) {
+      return undefined;
+    }
+
+    const timerId = setInterval(() => {
+      setShotCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerId);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [shotCooldown]);
+
   function handlePlayShot() {
-    if (isGameOver || !shotResolverRef.current) {
+    if (isGameOver || shotCooldown > 0 || !shotResolverRef.current) {
       return;
     }
 
@@ -190,6 +209,17 @@ export default function App() {
     }
 
     setBallsBowled((prev) => prev + 1);
+    setShotCooldown(2);
+  }
+
+  function handleResetInnings() {
+    setRuns(0);
+    setWickets(0);
+    setBallsBowled(0);
+    setBattingStyle('Aggressive');
+    setLastOutcome('None');
+    setLastSliderPosition(null);
+    setShotCooldown(0);
   }
 
   return (
@@ -230,9 +260,9 @@ export default function App() {
           id="btn-play-shot"
           className="btn"
           onClick={handlePlayShot}
-          disabled={isGameOver}
+          disabled={isGameOver || shotCooldown > 0}
         >
-          PLAY SHOT
+          {shotCooldown > 0 ? `PLAY SHOT (${shotCooldown}s)` : 'PLAY SHOT'}
         </button>
         <p className="style-section__label">
           Last Outcome: <span className="style-section__badge">{lastOutcome}</span>
@@ -243,6 +273,13 @@ export default function App() {
             Game Over: reached {MAX_OVERS} overs or {MAX_WICKETS} wickets.
           </p>
         )}
+        <button
+          id="btn-reset-innings"
+          className="btn"
+          onClick={handleResetInnings}
+        >
+          RESET INNINGS
+        </button>
       </div>
 
       <PowerBar battingStyle={battingStyle} registerShotResolver={registerShotResolver} />
