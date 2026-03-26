@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
-// ---------------------------------------------------------------------------
-// PROBABILITY TABLES
-// ---------------------------------------------------------------------------
+const MAX_OVERS = 2;
+const MAX_BALLS = MAX_OVERS * 6;
+const MAX_WICKETS = 2;
+
 const PROBABILITIES = {
   Aggressive: [
     { outcome: 'Wicket', shortLabel: 'W', prob: 0.40, colorClass: 'seg--wicket' },
@@ -25,12 +26,8 @@ const PROBABILITIES = {
   ],
 };
 
-// ---------------------------------------------------------------------------
-// SCOREBOARD COMPONENT
-// ---------------------------------------------------------------------------
 function Scoreboard({ runs, wickets, ballsBowled }) {
-  const TOTAL_BALLS = 120;
-  const ballsRemaining = TOTAL_BALLS - ballsBowled;
+  const ballsRemaining = MAX_BALLS - ballsBowled;
   const oversRemaining = Math.floor(ballsRemaining / 6);
   const ballsInOverRemaining = ballsRemaining % 6;
   const oversBowled = Math.floor(ballsBowled / 6);
@@ -41,7 +38,7 @@ function Scoreboard({ runs, wickets, ballsBowled }) {
       <div className="scoreboard__header">
         <span className="scoreboard__title">🏏 CRICKET MATCH</span>
         <span className="scoreboard__subtitle">
-          Overs: {oversBowled}.{ballsInCurrentOver} / 20
+          Overs: {oversBowled}.{ballsInCurrentOver} / {MAX_OVERS}
         </span>
       </div>
 
@@ -69,21 +66,46 @@ function Scoreboard({ runs, wickets, ballsBowled }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// POWER BAR COMPONENT
-// ---------------------------------------------------------------------------
-function PowerBar({ battingStyle }) {
+function PowerBar({ battingStyle, registerShotResolver }) {
   const segments = PROBABILITIES[battingStyle];
   const totalProbability = segments.reduce((sum, seg) => sum + seg.prob, 0);
 
-  // rAF-based slider: position oscillates 0 → 100 → 0 continuously
   const sliderRef = useRef(null);
-  const posRef    = useRef(0);     // 0..100 (percentage across bar)
-  const dirRef    = useRef(1);     // +1 or -1
+  const posRef    = useRef(0);     
+  const dirRef    = useRef(1);    
   const rafRef    = useRef(null);
 
   useEffect(() => {
-    const SPEED = 0.18; // percentage units per frame (~60fps)
+    if (!registerShotResolver) {
+      return undefined;
+    }
+
+    registerShotResolver(() => {
+      const sliderPosition = posRef.current;
+      let cumulative = 0;
+
+      for (const segment of segments) {
+        cumulative += segment.prob * 100;
+        if (sliderPosition <= cumulative) {
+          return {
+            outcome: segment.outcome,
+            sliderPosition,
+          };
+        }
+      }
+
+      const fallback = segments[segments.length - 1];
+      return {
+        outcome: fallback.outcome,
+        sliderPosition,
+      };
+    });
+
+    return () => registerShotResolver(null);
+  }, [registerShotResolver, segments]);
+
+  useEffect(() => {
+    const SPEED = 0.32; 
 
     function tick() {
       posRef.current += SPEED * dirRef.current;
@@ -98,7 +120,7 @@ function PowerBar({ battingStyle }) {
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, []); // never restarts — slider speed is constant regardless of style change
+  }, []); 
 
   const isDistributionValid = Math.abs(totalProbability - 1) < 1e-9;
 
@@ -109,7 +131,6 @@ function PowerBar({ battingStyle }) {
         <p className="powerbar-warning">Distribution error: probabilities must sum to exactly 1.0</p>
       )}
 
-      {/* Legend */}
       <div className="powerbar-legend">
         {segments.map((seg) => (
           <div key={seg.outcome} className="legend-item">
@@ -120,7 +141,6 @@ function PowerBar({ battingStyle }) {
         ))}
       </div>
 
-      {/* Bar */}
       <div className="powerbar" id="power-bar">
         {/* Coloured segments */}
         {segments.map((seg) => (
@@ -133,24 +153,44 @@ function PowerBar({ battingStyle }) {
           </div>
         ))}
 
-        {/* Animated slider */}
         <div className="powerbar__slider" ref={sliderRef} />
       </div>
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// MAIN APP
-// ---------------------------------------------------------------------------
 export default function App() {
-  const [runs, setRuns]               = useState(0);
-  const [wickets, setWickets]         = useState(0);
+  const [runs, setRuns] = useState(0);
+  const [wickets, setWickets] = useState(0);
   const [ballsBowled, setBallsBowled] = useState(0);
   const [battingStyle, setBattingStyle] = useState('Aggressive');
+  const [lastOutcome, setLastOutcome] = useState('None');
+  const [lastSliderPosition, setLastSliderPosition] = useState(null);
+  const shotResolverRef = useRef(null);
 
-  // Suppress unused-var lint warnings — these setters will be wired in Step 3
-  void setRuns; void setWickets; void setBallsBowled;
+  const isGameOver = ballsBowled >= MAX_BALLS || wickets >= MAX_WICKETS;
+
+  function registerShotResolver(resolverFn) {
+    shotResolverRef.current = resolverFn;
+  }
+
+  function handlePlayShot() {
+    if (isGameOver || !shotResolverRef.current) {
+      return;
+    }
+
+    const { outcome, sliderPosition } = shotResolverRef.current();
+    setLastOutcome(outcome);
+    setLastSliderPosition(sliderPosition);
+
+    if (outcome === 'Wicket') {
+      setWickets((prev) => prev + 1);
+    } else {
+      setRuns((prev) => prev + Number(outcome));
+    }
+
+    setBallsBowled((prev) => prev + 1);
+  }
 
   return (
     <div className="app">
@@ -170,6 +210,7 @@ export default function App() {
             id="btn-aggressive"
             className={`btn btn--aggressive ${battingStyle === 'Aggressive' ? 'btn--active' : ''}`}
             onClick={() => setBattingStyle('Aggressive')}
+            disabled={isGameOver}
           >
             Aggressive
           </button>
@@ -177,13 +218,34 @@ export default function App() {
             id="btn-defensive"
             className={`btn btn--defensive ${battingStyle === 'Defensive' ? 'btn--active' : ''}`}
             onClick={() => setBattingStyle('Defensive')}
+            disabled={isGameOver}
           >
             Defensive
           </button>
         </div>
       </div>
 
-      <PowerBar battingStyle={battingStyle} />
+      <div className="style-section">
+        <button
+          id="btn-play-shot"
+          className="btn"
+          onClick={handlePlayShot}
+          disabled={isGameOver}
+        >
+          PLAY SHOT
+        </button>
+        <p className="style-section__label">
+          Last Outcome: <span className="style-section__badge">{lastOutcome}</span>
+          {lastSliderPosition !== null && ` @ ${lastSliderPosition.toFixed(2)}%`}
+        </p>
+        {isGameOver && (
+          <p className="style-section__label">
+            Game Over: reached {MAX_OVERS} overs or {MAX_WICKETS} wickets.
+          </p>
+        )}
+      </div>
+
+      <PowerBar battingStyle={battingStyle} registerShotResolver={registerShotResolver} />
     </div>
   );
 }
