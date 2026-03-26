@@ -143,7 +143,7 @@ function PowerBar({ battingStyle, registerShotResolver }) {
   }, [registerShotResolver, segments]);
 
   useEffect(() => {
-    const SPEED = 1;
+    const SPEED = 2;
 
     function tick() {
       posRef.current += SPEED * dirRef.current;
@@ -336,6 +336,7 @@ export default function App() {
   return (
     <div className="app">
       <StickyNote />
+        <CommentaryBox commentary={commentary} />
       <div className="app__header">
         <button
           id="btn-reset-innings"
@@ -348,7 +349,6 @@ export default function App() {
       </div>
 
       <div className="game-container">
-        <CommentaryBox commentary={commentary} />
         <Scoreboard runs={runs} wickets={wickets} ballsBowled={ballsBowled} />
         <CricketField isPlaying={isBowling} isBatting={isBatting} />
       </div>
