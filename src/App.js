@@ -5,49 +5,43 @@ const MAX_OVERS = 2;
 const MAX_BALLS = MAX_OVERS * 6;
 const MAX_WICKETS = 2;
 
-// Commentary system
 const COMMENTARY = {
   'Wicket': [
-    "And that's the wicket! Great delivery!",
-    "Bowled! The batsman is out!",
-    "Caught behind the stumps! What a moment!",
+    'Bowled him! What a delivery!',
+    'Got him! Caught at slip!',
+    'That\'s out! LBW decision!',
   ],
   '0': [
-    "Dot ball! No runs scored.",
-    "Blocked safely for a dot.",
-    "Not a single run off that delivery.",
+    'Dot ball! No runs scored.',
+    'Defended! Stays in the crease.',
+    'Tight line! Blocked it.',
   ],
   '1': [
-    "One run! Good quick single.",
-    "Just a single taken.",
-    "Running between the wickets for one.",
+    'Single run! Quick between the wickets.',
+    'Easy single! Off the mark.',
+    'Nicely worked for one!',
   ],
   '2': [
-    "Two runs! Great shot placement.",
-    "That's a comfortable two runs.",
-    "Brilliant running, a pair of twos!",
+    'Two runs! Great running!',
+    'Pushed for a couple!',
+    'Easy two! Down the ground.',
   ],
   '3': [
-    "Three runs! Oh what a stroke!",
-    "Beautiful three-run boundary.",
-    "Down to fine leg for three!",
+    'Three runs! Excellent stroke play!',
+    'That\'s a three! Beautifully timed.',
+    'Three more! The crowd loves it!',
   ],
   '4': [
-    "FOUR! Brilliant boundary shot!",
-    "That's racing to the boundary for four!",
-    "Cracking four! The crowd goes wild!",
+    'FOUR! Boundary! Fantastic shot!',
+    'Four runs! Off the bat beautifully!',
+    'FOUR! What a delivery to the boundary!',
   ],
   '6': [
-    "SIX! What a massive hit!",
-    "Over the boundary for six runs!",
-    "That's disappeared into the crowd!",
+    'SIX! Out of the park! What a hit!',
+    'SIX RUNS! Over the boundary!',
+    'SIX! The crowd goes wild!',
   ],
 };
-
-function getRandomCommentary(outcome) {
-  const commentaries = COMMENTARY[outcome] || ['Interesting ball!'];
-  return commentaries[Math.floor(Math.random() * commentaries.length)];
-}
 
 const PROBABILITIES = {
   Aggressive: [
@@ -186,7 +180,6 @@ function PowerBar({ battingStyle, registerShotResolver }) {
       </div>
 
       <div className="powerbar" id="power-bar">
-        {/* Coloured segments */}
         {segments.map((seg) => (
           <div
             key={seg.outcome}
@@ -209,21 +202,18 @@ function CricketField({ isPlaying, isBatting }) {
       <div className="cricket-pitch">
         <div className="crease" />
 
-        {/* Left Wicket (Bowler's end) */}
         <div className="wicket wicket--left">
           <div className="stump stump--1" />
           <div className="stump stump--2" />
           <div className="stump stump--3" />
         </div>
 
-        {/* Ball from right end toward bat */}
         {isPlaying && (
           <div className="ball ball--animate">
             <img src="/ball.png" alt="cricket ball" />
           </div>
         )}
 
-        {/* Right Wicket (Batter's end) */}
         <div className="wicket wicket--right">
           <div className="stump stump--1" />
           <div className="stump stump--2" />
@@ -238,6 +228,25 @@ function CricketField({ isPlaying, isBatting }) {
   );
 }
 
+function CommentaryBox({ commentary }) {
+  return (
+    <div className="commentary-box">
+      <h3 className="commentary-box__title">🎙️ Commentary</h3>
+      <p className="commentary-box__text">{commentary}</p>
+    </div>
+  );
+}
+
+function StickyNote() {
+  return (
+    <div className="sticky-note">
+      <p><strong>Name:</strong> Rayyan</p>
+      <p><strong>Roll No:</strong> i23-0502</p>
+      <p><strong>Section:</strong> C</p>
+    </div>
+  );
+}
+
 export default function App() {
   const [runs, setRuns] = useState(0);
   const [wickets, setWickets] = useState(0);
@@ -248,10 +257,21 @@ export default function App() {
   const [shotCooldown, setShotCooldown] = useState(0);
   const [isBowling, setIsBowling] = useState(false);
   const [isBatting, setIsBatting] = useState(false);
-  const [commentary, setCommentary] = useState('');
+  const [commentary, setCommentary] = useState('Ready to bat!');
   const shotResolverRef = useRef(null);
 
   const isGameOver = ballsBowled >= MAX_BALLS || wickets >= MAX_WICKETS;
+
+  function getBatsmanName() {
+    return wickets === 0 ? 'Babar Azam' : 'AB De Villiers';
+  }
+
+  function getRandomCommentary(outcome) {
+    const commentaryList = COMMENTARY[outcome] || COMMENTARY['0'];
+    const randomIndex = Math.floor(Math.random() * commentaryList.length);
+    const batsmanName = getBatsmanName();
+    return `${batsmanName}: ${commentaryList[randomIndex]}`;
+  }
 
   function registerShotResolver(resolverFn) {
     shotResolverRef.current = resolverFn;
@@ -310,19 +330,12 @@ export default function App() {
     setShotCooldown(0);
     setIsBowling(false);
     setIsBatting(false);
+    setCommentary('Ready to bat!');
   }
 
   return (
     <div className="app">
-      {/* Sticky Note */}
-      <div className="sticky-note">
-        <div className="sticky-note__content">
-          <p className="sticky-note__item"><strong>Name:</strong> Rayyan</p>
-          <p className="sticky-note__item"><strong>Roll:</strong> i23-0502</p>
-          <p className="sticky-note__item"><strong>Section:</strong> C</p>
-        </div>
-      </div>
-
+      <StickyNote />
       <div className="app__header">
         <button
           id="btn-reset-innings"
@@ -335,16 +348,9 @@ export default function App() {
       </div>
 
       <div className="game-container">
+        <CommentaryBox commentary={commentary} />
         <Scoreboard runs={runs} wickets={wickets} ballsBowled={ballsBowled} />
-        <div className="pitch-container">
-          {commentary && (
-            <div className="commentary-box">
-              <span className="commentary-box__icon">📣</span>
-              <span className="commentary-box__text">{commentary}</span>
-            </div>
-          )}
-          <CricketField isPlaying={isBowling} isBatting={isBatting} />
-        </div>
+        <CricketField isPlaying={isBowling} isBatting={isBatting} />
       </div>
 
       <div className="controls-panel">
@@ -385,7 +391,6 @@ export default function App() {
         </button>
         <p className="style-section__label">
           Last Outcome: <span className="style-section__badge">{lastOutcome}</span>
-          {lastSliderPosition !== null && ` @ ${lastSliderPosition.toFixed(2)}%`}
         </p>
         {isGameOver && (
           <p className="style-section__label">
