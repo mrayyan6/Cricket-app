@@ -1,0 +1,251 @@
+/* ============================================
+   GLOBAL RESET & FONTS
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #0d1117;
+  color: #e6edf3;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px;
+}
+
+/* ============================================
+   APP WRAPPER
+   ============================================ */
+.app {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.app__heading {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #58a6ff, #3fb950);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+}
+
+/* ============================================
+   SCOREBOARD
+   ============================================ */
+.scoreboard {
+  width: 100%;
+  background: linear-gradient(160deg, #161b22, #1c2128);
+  border: 1px solid #30363d;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(88, 166, 255, 0.08);
+}
+
+/* Header strip */
+.scoreboard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: linear-gradient(90deg, rgba(88, 166, 255, 0.12), rgba(63, 185, 80, 0.08));
+  border-bottom: 1px solid #30363d;
+}
+
+.scoreboard__title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #58a6ff;
+}
+
+.scoreboard__subtitle {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #8b949e;
+}
+
+/* Body: runs & wickets */
+.scoreboard__body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 36px 24px;
+}
+
+.scoreboard__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.scoreboard__stat-value {
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #e6edf3;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.scoreboard__stat-value:hover {
+  transform: scale(1.04);
+  color: #58a6ff;
+}
+
+.scoreboard__stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8b949e;
+}
+
+.scoreboard__divider {
+  font-size: 3rem;
+  font-weight: 300;
+  color: #30363d;
+  line-height: 1;
+  margin-top: -8px;
+}
+
+/* Footer: balls remaining */
+.scoreboard__footer {
+  padding: 14px 24px;
+  background: rgba(63, 185, 80, 0.06);
+  border-top: 1px solid #30363d;
+  display: flex;
+  justify-content: center;
+}
+
+.scoreboard__remaining {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scoreboard__remaining-label {
+  font-size: 0.8rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.scoreboard__remaining-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #3fb950;
+}
+
+/* ============================================
+   BATTING STYLE SECTION
+   ============================================ */
+.style-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.style-section__label {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #8b949e;
+}
+
+.style-section__badge {
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.style-section__badge--aggressive {
+  background: rgba(248, 81, 73, 0.18);
+  color: #f85149;
+}
+
+.style-section__badge--defensive {
+  background: rgba(63, 185, 80, 0.18);
+  color: #3fb950;
+}
+
+/* Toggle Buttons */
+.style-section__buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.btn {
+  padding: 12px 28px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.04em;
+}
+
+/* Aggressive button */
+.btn--aggressive {
+  background: rgba(248, 81, 73, 0.08);
+  color: #f85149;
+  border-color: rgba(248, 81, 73, 0.3);
+}
+
+.btn--aggressive:hover {
+  background: rgba(248, 81, 73, 0.18);
+  border-color: #f85149;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(248, 81, 73, 0.25);
+}
+
+.btn--aggressive.btn--active {
+  background: #f85149;
+  color: #fff;
+  border-color: #f85149;
+  box-shadow: 0 4px 20px rgba(248, 81, 73, 0.4);
+}
+
+/* Defensive button */
+.btn--defensive {
+  background: rgba(63, 185, 80, 0.08);
+  color: #3fb950;
+  border-color: rgba(63, 185, 80, 0.3);
+}
+
+.btn--defensive:hover {
+  background: rgba(63, 185, 80, 0.18);
+  border-color: #3fb950;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(63, 185, 80, 0.25);
+}
+
+.btn--defensive.btn--active {
+  background: #3fb950;
+  color: #fff;
+  border-color: #3fb950;
+  box-shadow: 0 4px 20px rgba(63, 185, 80, 0.4);
+}
