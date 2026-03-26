@@ -159,6 +159,41 @@ function PowerBar({ battingStyle, registerShotResolver }) {
   );
 }
 
+function CricketField({ isPlaying, isBatting }) {
+  return (
+    <div className="cricket-field">
+      <div className="cricket-pitch">
+        <div className="crease" />
+
+        {/* Left Wicket (Bowler's end) */}
+        <div className="wicket wicket--left">
+          <div className="stump stump--1" />
+          <div className="stump stump--2" />
+          <div className="stump stump--3" />
+        </div>
+
+        {/* Ball from right end toward bat */}
+        {isPlaying && (
+          <div className="ball ball--animate">
+            <img src="/ball.png" alt="cricket ball" />
+          </div>
+        )}
+
+        {/* Right Wicket (Batter's end) */}
+        <div className="wicket wicket--right">
+          <div className="stump stump--1" />
+          <div className="stump stump--2" />
+          <div className="stump stump--3" />
+        </div>
+
+        <div className={`bat ${isBatting ? 'bat--swing' : ''}`}>
+          <img src="/bat.png" alt="cricket bat" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [runs, setRuns] = useState(0);
   const [wickets, setWickets] = useState(0);
@@ -167,6 +202,8 @@ export default function App() {
   const [lastOutcome, setLastOutcome] = useState('None');
   const [lastSliderPosition, setLastSliderPosition] = useState(null);
   const [shotCooldown, setShotCooldown] = useState(0);
+  const [isBowling, setIsBowling] = useState(false);
+  const [isBatting, setIsBatting] = useState(false);
   const shotResolverRef = useRef(null);
 
   const isGameOver = ballsBowled >= MAX_BALLS || wickets >= MAX_WICKETS;
@@ -198,6 +235,11 @@ export default function App() {
       return;
     }
 
+    setIsBowling(true);
+    setIsBatting(true);
+    setTimeout(() => setIsBowling(false), 600);
+    setTimeout(() => setIsBatting(false), 600);
+
     const { outcome, sliderPosition } = shotResolverRef.current();
     setLastOutcome(outcome);
     setLastSliderPosition(sliderPosition);
@@ -220,42 +262,56 @@ export default function App() {
     setLastOutcome('None');
     setLastSliderPosition(null);
     setShotCooldown(0);
+    setIsBowling(false);
+    setIsBatting(false);
   }
 
   return (
     <div className="app">
-      <h1 className="app__heading">2D Cricket Game</h1>
-
-      <Scoreboard runs={runs} wickets={wickets} ballsBowled={ballsBowled} />
-
-      <div className="style-section">
-        <p className="style-section__label">
-          Current Style:{' '}
-          <span className={`style-section__badge style-section__badge--${battingStyle.toLowerCase()}`}>
-            {battingStyle}
-          </span>
-        </p>
-        <div className="style-section__buttons">
-          <button
-            id="btn-aggressive"
-            className={`btn btn--aggressive ${battingStyle === 'Aggressive' ? 'btn--active' : ''}`}
-            onClick={() => setBattingStyle('Aggressive')}
-            disabled={isGameOver}
-          >
-            Aggressive
-          </button>
-          <button
-            id="btn-defensive"
-            className={`btn btn--defensive ${battingStyle === 'Defensive' ? 'btn--active' : ''}`}
-            onClick={() => setBattingStyle('Defensive')}
-            disabled={isGameOver}
-          >
-            Defensive
-          </button>
-        </div>
+      <div className="app__header">
+        <button
+          id="btn-reset-innings"
+          className="btn btn--reset-top"
+          onClick={handleResetInnings}
+        >
+          ↻ RESET
+        </button>
+        <h1 className="app__heading">2D Cricket Game</h1>
       </div>
 
-      <div className="style-section">
+      <div className="game-container">
+        <Scoreboard runs={runs} wickets={wickets} ballsBowled={ballsBowled} />
+        <CricketField isPlaying={isBowling} isBatting={isBatting} />
+      </div>
+
+      <div className="controls-panel">
+        <div className="style-section">
+          <p className="style-section__label">
+            Current Style:{' '}
+            <span className={`style-section__badge style-section__badge--${battingStyle.toLowerCase()}`}>
+              {battingStyle}
+            </span>
+          </p>
+          <div className="style-section__buttons">
+            <button
+              id="btn-aggressive"
+              className={`btn btn--aggressive ${battingStyle === 'Aggressive' ? 'btn--active' : ''}`}
+              onClick={() => setBattingStyle('Aggressive')}
+              disabled={isGameOver}
+            >
+              Aggressive
+            </button>
+            <button
+              id="btn-defensive"
+              className={`btn btn--defensive ${battingStyle === 'Defensive' ? 'btn--active' : ''}`}
+              onClick={() => setBattingStyle('Defensive')}
+              disabled={isGameOver}
+            >
+              Defensive
+            </button>
+          </div>
+        </div>
+
         <button
           id="btn-play-shot"
           className="btn"
@@ -273,13 +329,6 @@ export default function App() {
             Game Over: reached {MAX_OVERS} overs or {MAX_WICKETS} wickets.
           </p>
         )}
-        <button
-          id="btn-reset-innings"
-          className="btn"
-          onClick={handleResetInnings}
-        >
-          RESET INNINGS
-        </button>
       </div>
 
       <PowerBar battingStyle={battingStyle} registerShotResolver={registerShotResolver} />
